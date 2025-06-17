@@ -1,5 +1,15 @@
-// HTTP Client utility functions
+/**
+ * HTTPクライアントユーティリティ関数群
+ * APIリクエストの送信、レスポンス処理を担当
+ */
 export class APIClient {
+  /**
+   * POSTリクエストを送信する
+   * @param {string} url - リクエスト送信先URL
+   * @param {any} data - 送信するデータ
+   * @param {Object} options - Fetch APIのオプション
+   * @returns {Promise<Object>} レスポンスオブジェクト
+   */
   static async post(url, data, options = {}) {
     const defaultOptions = {
       method: 'POST',
@@ -10,21 +20,24 @@ export class APIClient {
     };
 
     try {
+      // Fetch APIを使用してPOSTリクエストを送信
       const response = await fetch(url, {
         ...defaultOptions,
         body: typeof data === 'string' ? data : JSON.stringify(data),
       });
 
+      // レスポンスをテキストとして取得
       const responseText = await response.text();
       let responseData;
 
-      // Try to parse as JSON, fallback to text
+      // JSONとしてパースを試み、失敗したらテキストとして扱う
       try {
         responseData = JSON.parse(responseText);
       } catch (e) {
         responseData = responseText;
       }
 
+      // 統一されたレスポンスオブジェクトを返す
       return {
         success: response.ok,
         status: response.status,
@@ -34,7 +47,7 @@ export class APIClient {
         url: response.url,
       };
     } catch (error) {
-      // Network or other errors
+      // ネットワークエラーやその他のエラーの処理
       return {
         success: false,
         status: 0,
@@ -50,11 +63,21 @@ export class APIClient {
     }
   }
 
+  /**
+   * タイムアウト付きPOSTリクエストを送信する
+   * @param {string} url - リクエスト送信先URL
+   * @param {any} data - 送信するデータ
+   * @param {number} timeout - タイムアウト時間（ミリ秒）
+   * @param {Object} options - Fetch APIのオプション
+   * @returns {Promise<Object>} レスポンスオブジェクト
+   */
   static async postWithTimeout(url, data, timeout = 30000, options = {}) {
+    // AbortControllerを使用してタイムアウトを実装
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
+      // signalを使用してキャンセル可能なリクエストを送信
       const result = await this.post(url, data, {
         ...options,
         signal: controller.signal,
@@ -64,6 +87,7 @@ export class APIClient {
     } catch (error) {
       clearTimeout(timeoutId);
       
+      // タイムアウトエラーの場合は専用のレスポンスを返す
       if (error.name === 'AbortError') {
         return {
           success: false,
@@ -79,13 +103,21 @@ export class APIClient {
         };
       }
       
+      // その他のエラーは再スロー
       throw error;
     }
   }
 }
 
-// Request history management
+/**
+ * リクエスト履歴管理クラス
+ * LocalStorageを使用してリクエスト履歴を保存・管理
+ */
 export class RequestHistory {
+  /**
+   * 保存されたリクエスト履歴を取得
+   * @returns {Array} リクエスト履歴の配列
+   */
   static getHistory() {
     try {
       const history = localStorage.getItem('json-post-history');
@@ -96,6 +128,12 @@ export class RequestHistory {
     }
   }
 
+  /**
+   * 新しいリクエストを履歴に追加
+   * @param {string} url - リクエストURL
+   * @param {string} jsonData - 送信したJSONデータ
+   * @param {Object} response - レスポンスオブジェクト
+   */
   static addRequest(url, jsonData, response) {
     try {
       const history = this.getHistory();
@@ -111,7 +149,7 @@ export class RequestHistory {
         },
       };
 
-      // Keep only the last 50 requests
+      // 最新50件のみを保持（メモリ使用量を制限）
       const updatedHistory = [newEntry, ...history].slice(0, 50);
       localStorage.setItem('json-post-history', JSON.stringify(updatedHistory));
     } catch (e) {
@@ -119,6 +157,9 @@ export class RequestHistory {
     }
   }
 
+  /**
+   * リクエスト履歴をクリア
+   */
   static clearHistory() {
     try {
       localStorage.removeItem('json-post-history');
@@ -128,13 +169,21 @@ export class RequestHistory {
   }
 }
 
-// URL validation and management
+/**
+ * URL検証と管理のためのクラス
+ * URLの妥当性チェック、保存、マスキング機能を提供
+ */
 export class URLManager {
+  /**
+   * URLの妥当性を検証
+   * @param {string} url - 検証するURL
+   * @returns {Object} 検証結果（valid: boolean, error?: string, url?: string）
+   */
   static validateURL(url) {
     try {
       const urlObj = new URL(url);
       
-      // Check if protocol is http or https
+      // HTTPまたはHTTPSプロトコルのチェック
       if (!['http:', 'https:'].includes(urlObj.protocol)) {
         return {
           valid: false,
@@ -142,7 +191,7 @@ export class URLManager {
         };
       }
 
-      // Check if hostname exists
+      // ホスト名の存在チェック
       if (!urlObj.hostname) {
         return {
           valid: false,
@@ -162,6 +211,10 @@ export class URLManager {
     }
   }
 
+  /**
+   * 保存されたURLを取得
+   * @returns {string} 保存されたURL（存在しない場合は空文字）
+   */
   static getStoredURL() {
     try {
       return localStorage.getItem('json-post-target-url') || '';
@@ -171,6 +224,10 @@ export class URLManager {
     }
   }
 
+  /**
+   * URLをLocalStorageに保存
+   * @param {string} url - 保存するURL
+   */
   static storeURL(url) {
     try {
       localStorage.setItem('json-post-target-url', url);
@@ -179,6 +236,11 @@ export class URLManager {
     }
   }
 
+  /**
+   * URLをマスキングしてプライバシーを保護
+   * @param {string} url - マスキングするURL
+   * @returns {string} マスキングされたURL
+   */
   static maskURL(url) {
     if (!url) return '';
     
@@ -188,20 +250,40 @@ export class URLManager {
       const parts = hostname.split('.');
       
       if (parts.length > 2) {
-        // subdomain.domain.com -> subdomain.***.com
-        parts[1] = '***';
+        // subdomain.domain.com の場合、サブドメイン部を秘匿
+        const subdomain = parts[0];
+        if (subdomain.length > 6) {
+          // 先頭2文字 + *** + 末尾4文字
+          const maskedSubdomain = subdomain.substring(0, 2) + '***' + subdomain.substring(subdomain.length - 4);
+          parts[0] = maskedSubdomain;
+        } else if (subdomain.length > 2) {
+          // 短いサブドメインの場合は中央部分のみ秘匿
+          const start = subdomain.substring(0, 1);
+          const end = subdomain.substring(subdomain.length - 1);
+          parts[0] = start + '***' + end;
+        }
+        // else: 2文字以下の場合はそのまま
       } else if (parts.length === 2) {
-        // domain.com -> ***.com
-        parts[0] = '***';
+        // domain.com の場合、ドメイン名の一部を秘匿
+        const domain = parts[0];
+        if (domain.length > 6) {
+          const maskedDomain = domain.substring(0, 2) + '***' + domain.substring(domain.length - 4);
+          parts[0] = maskedDomain;
+        } else if (domain.length > 2) {
+          const start = domain.substring(0, 1);
+          const end = domain.substring(domain.length - 1);
+          parts[0] = start + '***' + end;
+        }
       }
       
+      // マスキングされたURLを再構築
       const maskedHostname = parts.join('.');
       const path = urlObj.pathname !== '/' ? urlObj.pathname : '';
       const search = urlObj.search || '';
       
       return `${urlObj.protocol}//${maskedHostname}${path}${search}`;
     } catch (e) {
-      // Invalid URL, just mask the middle part
+      // 無効なURL形式の場合は中央部分をマスキング
       const length = url.length;
       if (length <= 10) return url;
       

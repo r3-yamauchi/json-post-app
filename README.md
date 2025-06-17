@@ -1,8 +1,14 @@
 # JSON POST Tool
 
+[日本語版 README](./README.ja.md)
+
 A modern, user-friendly web application for sending JSON POST requests and viewing responses with beautiful formatting.
 
-## Features
+![JSON POST Tool](https://img.shields.io/badge/React-19.1.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/r3-yamauchi/json-post-app)
+
+## 🚀 Features
 
 - 🎯 **Easy URL Management**: Set target URL with privacy-friendly masking
 - ✨ **Smart JSON Editor**: Real-time validation, auto-formatting, and templates
@@ -10,125 +16,231 @@ A modern, user-friendly web application for sending JSON POST requests and viewi
 - 📱 **Responsive Design**: Works perfectly on desktop and mobile
 - 🔒 **Privacy Focused**: URL masking and secure data handling
 - ⚡ **Fast & Reliable**: Built with React and modern web technologies
+- 💾 **Request History**: Automatically saves last 50 requests
 
-## Quick Start
+## 📋 Prerequisites
 
-1. **Clone and Install**
+- Node.js 14.0 or higher
+- npm or pnpm package manager
+
+## 🛠️ Installation
+
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd json-post-app
-   npm install
    ```
 
-2. **Run Development Server**
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Start development server**
    ```bash
    npm start
    ```
+   The app will open at `http://localhost:3000`
 
-3. **Build for Production**
+4. **Build for production**
    ```bash
    npm run build
    ```
 
-## Usage
+## 📖 Usage Guide
 
-1. **Set Target URL**: Enter the API endpoint URL when prompted
-2. **Input JSON**: Use the editor with validation and formatting tools
-3. **Send Request**: Click "Send POST Request" to submit
-4. **View Response**: Analyze the formatted response with headers and details
+### Basic Workflow
 
-## Project Structure
+1. **Set Target URL**
+   - On first launch, enter your API endpoint URL
+   - The URL is saved locally for future sessions
+   - Click "Change" button to modify the URL anytime
 
+2. **Write JSON Data**
+   - Use the JSON editor on the left side
+   - Real-time validation shows errors immediately
+   - Use templates for common JSON structures
+   - Format or minify JSON with one click
+
+3. **Send Request**
+   - Click "Send POST Request" button
+   - Watch the loading indicator
+   - View response on the right side
+
+4. **Analyze Response**
+   - Check HTTP status code
+   - Toggle between formatted and raw views
+   - Copy response data to clipboard
+   - View headers and request details
+
+### Advanced Features
+
+#### JSON Editor
+- **Real-time Validation**: Instant feedback on JSON syntax errors
+- **Auto-formatting**: Press "Format" to beautify JSON
+- **Minification**: Press "Minify" to compress JSON
+- **Templates**: Quick insert common JSON structures
+- **Size Display**: Monitor your payload size
+- **Keyboard Shortcuts**:
+  - `Tab`: Add indentation
+  - `Shift+Tab`: Remove indentation
+  - `Enter`: Auto-indent new line
+
+#### Response Viewer
+- **Multiple Views**: Switch between formatted and raw JSON
+- **Headers Inspector**: View all response headers
+- **Request Details**: See what was sent
+- **Error Details**: Comprehensive error messages
+- **Copy Function**: One-click copy to clipboard
+
+#### Data Persistence
+- **URL Storage**: Remembers your API endpoint
+- **Request History**: Last 50 requests saved locally
+- **Privacy Mode**: URLs displayed with partial masking
+
+## 🏗️ Architecture
+
+### Project Structure
 ```
 json-post-app/
-├── public/                 # Static files
+├── public/                 # Static assets
 ├── src/
 │   ├── components/        # React components
-│   │   ├── URLDialog.js   # URL input dialog
+│   │   ├── URLDialog.js   # URL configuration modal
 │   │   ├── JSONEditor.js  # JSON input editor
 │   │   └── ResponseViewer.js # Response display
-│   ├── utils/            # Utility functions
-│   │   ├── api.js        # HTTP client utilities
-│   │   └── validation.js # JSON validation helpers
-│   ├── styles/           # CSS styles
-│   │   └── App.css       # Main stylesheet
-│   └── App.js            # Main application component
-├── USER_GUIDE.md         # Detailed user guide
+│   ├── utils/            # Utility classes
+│   │   ├── api.js        # APIClient, URLManager, RequestHistory
+│   │   └── validation.js # JSON validation utilities
+│   ├── styles/           # Stylesheets
+│   │   └── App.css       # Main styles
+│   └── App.js            # Root component
 └── README.md             # This file
 ```
 
-## Key Components
+### Key Components
 
-### URLDialog
+#### App.js
+Main application component managing global state and orchestrating child components.
+
+#### URLDialog
 - URL input and validation
-- Privacy-friendly URL masking
-- Local storage integration
+- Privacy-friendly masking display
+- LocalStorage integration
 
-### JSONEditor
+#### JSONEditor
+- Monaco-editor-like experience
 - Real-time JSON validation
-- Auto-formatting and minification
-- Template insertion
-- Keyboard shortcuts (Tab, Shift+Tab)
+- Multiple editing helpers
 - Size calculation
 
-### ResponseViewer
-- Status code display
-- Formatted/Raw view toggle
-- Response headers and request details
-- Copy to clipboard functionality
-- Error handling and display
+#### ResponseViewer
+- Status code visualization
+- Multiple view modes
+- Comprehensive error handling
+- Copy functionality
 
-## Technical Features
+### Utility Classes
 
-- **HTTP Client**: Robust fetch-based API client with timeout handling
-- **JSON Validation**: Real-time syntax checking with error positioning
-- **Local Storage**: URL and request history persistence
-- **CORS Support**: Cross-origin request handling
-- **Error Handling**: Comprehensive error messages and recovery
-- **Responsive Design**: Mobile-first CSS with desktop optimization
+#### APIClient
+Handles HTTP requests with:
+- Fetch API wrapper
+- 30-second timeout
+- AbortController support
+- Error categorization
 
-## Browser Support
+#### URLManager
+- URL validation
+- Storage management
+- Privacy masking
+
+#### RequestHistory
+- LocalStorage-based persistence
+- 50-item limit
+- FIFO queue implementation
+
+## 🧪 Development
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start development server on port 3000 |
+| `npm test` | Run test suite |
+| `npm test -- --watch` | Run tests in watch mode |
+| `npm test -- --coverage` | Generate test coverage report |
+| `npm run build` | Create production build |
+
+### Technology Stack
+
+- **Framework**: React 19.1.0
+- **Build Tool**: Create React App 5.0.1
+- **HTTP Client**: Fetch API
+- **Styling**: CSS with CSS Variables
+- **Storage**: LocalStorage API
+- **Testing**: Jest + React Testing Library
+
+### Browser Support
 
 - Chrome 80+
 - Firefox 75+
 - Safari 13+
 - Edge 80+
 
-## Development
+## 🔒 Security
 
-### Available Scripts
+- **URL Masking**: Partial URL hiding for privacy
+- **Input Sanitization**: React's built-in XSS protection
+- **No External Analytics**: Your data stays private
+- **Local Storage Only**: No server-side data collection
 
-- `npm start` - Run development server
-- `npm run build` - Build for production
-- `npm test` - Run test suite
-- `npm run eject` - Eject from Create React App
+## 🤝 Contributing
 
-### Dependencies
-
-- React 18
-- Axios (HTTP client)
-- Modern CSS features
-
-## Security
-
-- URL masking for privacy
-- Input sanitization
-- XSS protection
-- Secure data handling
-
-## Contributing
+We welcome contributions! Please follow these steps:
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+### Development Guidelines
 
-MIT License - see LICENSE file for details
+- Follow existing code style
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
 
-## Support
+## 📝 License
 
-For issues and questions, please check the USER_GUIDE.md or create an issue in the repository.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🆘 Troubleshooting
+
+### Common Issues
+
+1. **CORS Errors**
+   - Ensure your API server allows cross-origin requests
+   - Consider using a proxy server for development
+
+2. **Network Errors**
+   - Check internet connection
+   - Verify API endpoint is accessible
+
+3. **Timeout Errors**
+   - Default timeout is 30 seconds
+   - Check if API responds within time limit
+
+### Getting Help
+
+- Check the [Issues](https://github.com/r3-yamauchi/json-post-app/issues) page
+- Read the detailed guide in [README.ja.md](./README.ja.md) (Japanese)
+- Create a new issue for bugs or feature requests
+
+## 🙏 Acknowledgments
+
+- Built with [Create React App](https://create-react-app.dev/)
+- Icons and emoji from standard Unicode set
+- Inspired by modern API testing tools

@@ -1,6 +1,15 @@
-// JSON validation and formatting utilities
+/**
+ * JSON検証とフォーマットユーティリティ
+ * JSONの妥当性チェック、整形、最小化機能を提供
+ */
 export class JSONValidator {
+  /**
+   * JSON文字列の妥当性を検証
+   * @param {string} jsonString - 検証するJSON文字列
+   * @returns {Object} 検証結果（valid, error, line, column）
+   */
   static validate(jsonString) {
+    // 空または文字列以外の入力チェック
     if (!jsonString || typeof jsonString !== 'string') {
       return {
         valid: false,
@@ -10,6 +19,7 @@ export class JSONValidator {
       };
     }
 
+    // 空白文字を除去して再チェック
     const trimmed = jsonString.trim();
     if (!trimmed) {
       return {
@@ -21,18 +31,20 @@ export class JSONValidator {
     }
 
     try {
+      // JSONパースを試みる
       JSON.parse(trimmed);
       return {
         valid: true,
         error: null,
       };
     } catch (error) {
-      // Try to extract line and column information from error message
+      // エラーメッセージから行と列情報を抽出
       const match = error.message.match(/at position (\d+)/);
       let line = 0;
       let column = 0;
 
       if (match) {
+        // エラー位置から行番号と列番号を計算
         const position = parseInt(match[1], 10);
         const lines = trimmed.substring(0, position).split('\n');
         line = lines.length;
@@ -48,9 +60,15 @@ export class JSONValidator {
     }
   }
 
+  /**
+   * JSONを整形（インデント付き）
+   * @param {string} jsonString - 整形するJSON文字列
+   * @returns {Object} 整形結果（success, formatted, error）
+   */
   static format(jsonString) {
     try {
       const parsed = JSON.parse(jsonString);
+      // 2スペースのインデントで整形
       return {
         success: true,
         formatted: JSON.stringify(parsed, null, 2),
@@ -63,9 +81,15 @@ export class JSONValidator {
     }
   }
 
+  /**
+   * JSONを最小化（余分な空白を削除）
+   * @param {string} jsonString - 最小化するJSON文字列
+   * @returns {Object} 最小化結果（success, minified, error）
+   */
   static minify(jsonString) {
     try {
       const parsed = JSON.parse(jsonString);
+      // 空白を削除して最小化
       return {
         success: true,
         minified: JSON.stringify(parsed),
@@ -78,11 +102,21 @@ export class JSONValidator {
     }
   }
 
+  /**
+   * JSON文字列のバイトサイズを取得
+   * @param {string} jsonString - サイズを計測するJSON文字列
+   * @returns {number} バイトサイズ
+   */
   static getSize(jsonString) {
     if (!jsonString) return 0;
     return new Blob([jsonString]).size;
   }
 
+  /**
+   * JSON文字列のサイズを人間が読みやすい形式で取得
+   * @param {string} jsonString - サイズを計測するJSON文字列
+   * @returns {string} フォーマットされたサイズ文字列
+   */
   static getSizeFormatted(jsonString) {
     const bytes = this.getSize(jsonString);
     
@@ -96,8 +130,15 @@ export class JSONValidator {
   }
 }
 
-// JSON template management
+/**
+ * JSONテンプレート管理クラス
+ * プリセットとカスタムテンプレートの管理機能を提供
+ */
 export class JSONTemplates {
+  /**
+   * プリセットテンプレートの一覧を取得
+   * @returns {Array} テンプレートの配列
+   */
   static getTemplates() {
     return [
       {
@@ -166,6 +207,10 @@ export class JSONTemplates {
     ];
   }
 
+  /**
+   * カスタムテンプレートを取得
+   * @returns {Array} カスタムテンプレートの配列
+   */
   static getCustomTemplates() {
     try {
       const templates = localStorage.getItem('json-post-custom-templates');
@@ -176,6 +221,13 @@ export class JSONTemplates {
     }
   }
 
+  /**
+   * カスタムテンプレートを保存
+   * @param {string} name - テンプレート名
+   * @param {string} description - テンプレートの説明
+   * @param {string} template - JSONテンプレート
+   * @returns {Object} 保存結果
+   */
   static saveCustomTemplate(name, description, template) {
     try {
       const customTemplates = this.getCustomTemplates();
@@ -187,7 +239,8 @@ export class JSONTemplates {
         created: new Date().toISOString(),
       };
 
-      const updatedTemplates = [newTemplate, ...customTemplates].slice(0, 20); // Keep max 20 custom templates
+      // 最大20件のカスタムテンプレートを保持
+      const updatedTemplates = [newTemplate, ...customTemplates].slice(0, 20);
       localStorage.setItem('json-post-custom-templates', JSON.stringify(updatedTemplates));
       
       return { success: true, template: newTemplate };
@@ -197,6 +250,11 @@ export class JSONTemplates {
     }
   }
 
+  /**
+   * カスタムテンプレートを削除
+   * @param {number} id - 削除するテンプレートのID
+   * @returns {Object} 削除結果
+   */
   static deleteCustomTemplate(id) {
     try {
       const customTemplates = this.getCustomTemplates();
@@ -210,8 +268,17 @@ export class JSONTemplates {
   }
 }
 
-// Input helpers
+/**
+ * 入力補助ユーティリティクラス
+ * テキストエリアでの入力補助機能を提供
+ */
 export class InputHelpers {
+  /**
+   * カーソル位置にテキストを挿入
+   * @param {HTMLTextAreaElement} textarea - テキストエリア要素
+   * @param {string} text - 挿入するテキスト
+   * @returns {string} 更新後の値
+   */
   static insertAtCursor(textarea, text) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -220,37 +287,48 @@ export class InputHelpers {
     const newValue = value.substring(0, start) + text + value.substring(end);
     textarea.value = newValue;
     
-    // Set cursor position after inserted text
+    // 挿入したテキストの後にカーソルを設定
     const newCursorPos = start + text.length;
     textarea.setSelectionRange(newCursorPos, newCursorPos);
     
     return newValue;
   }
 
+  /**
+   * 自動インデントのためのスペースを計算
+   * @param {HTMLTextAreaElement} textarea - テキストエリア要素
+   * @returns {string} インデント用のスペース文字列
+   */
   static autoIndent(textarea) {
     const start = textarea.selectionStart;
     const value = textarea.value;
     const lines = value.substring(0, start).split('\n');
     const currentLine = lines[lines.length - 1];
     
-    // Count leading spaces in current line
+    // 現在の行の先頭スペースをカウント
     const leadingSpaces = currentLine.match(/^(\s*)/)[1];
     
-    // Add extra indentation if line ends with { or [
+    // 行末が { または [ の場合は追加インデント
     const extraIndent = /[{[]$/.test(currentLine.trim()) ? '  ' : '';
     
     return leadingSpaces + extraIndent;
   }
 
+  /**
+   * Tabキーの処理（インデント/アンインデント）
+   * @param {HTMLTextAreaElement} textarea - テキストエリア要素
+   * @param {boolean} shiftKey - Shiftキーが押されているか
+   * @returns {string} 更新後の値
+   */
   static handleTabKey(textarea, shiftKey = false) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const value = textarea.value;
     
     if (start === end) {
-      // No selection, insert/remove tab
+      // 選択範囲がない場合、タブを挿入/削除
       if (shiftKey) {
-        // Remove indentation
+        // インデントを削除
         const lineStart = value.lastIndexOf('\n', start - 1) + 1;
         const lineEnd = value.indexOf('\n', start);
         const line = value.substring(lineStart, lineEnd === -1 ? value.length : lineEnd);
@@ -262,14 +340,14 @@ export class InputHelpers {
           return newValue;
         }
       } else {
-        // Add indentation
+        // インデントを追加
         const newValue = value.substring(0, start) + '  ' + value.substring(end);
         textarea.value = newValue;
         textarea.setSelectionRange(start + 2, start + 2);
         return newValue;
       }
     } else {
-      // Selection exists, indent/unindent selected lines
+      // 選択範囲がある場合、選択された行をインデント/アンインデント
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
       const lineEnd = value.indexOf('\n', end - 1);
       const selectedText = value.substring(lineStart, lineEnd === -1 ? value.length : lineEnd);

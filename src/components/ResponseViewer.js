@@ -302,7 +302,7 @@ const ResponseViewer = ({ response }) => {
             </details>
           )}
           
-          {/* Error Details for failed requests */}
+          {/* 失敗したリクエストのエラー詳細 */}
           {!response.success && response.data && typeof response.data === 'object' && response.data.details && (
             <div style={{
               padding: '1rem',
